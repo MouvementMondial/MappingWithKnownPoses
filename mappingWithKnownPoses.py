@@ -16,7 +16,7 @@ import time
 """
 Parameter
 """
-folder = 'C:/Users/Thorsten/ownCloud/Shared/Studienarbeit/Programmierung/Testdaten/20110926_005'
+folder = 'C:/Users/Thorsten/ownCloud/Shared/Studienarbeit/Programmierung/Testdaten/20110926_117'
 
 """
 Load Trajectory (known Poses)
@@ -30,14 +30,14 @@ Create List with filenames of the Pointclouds
 filenames_pcl = []
 
 for m in range(nr_of_scans):
-    filenames_pcl.append(folder+'/pcl_filter/pointcloud_'+str(m)+' - Cloud.txt')
+    filenames_pcl.append(folder+'/pcl_filter/pointcloud_zFiltered_'+str(m)+'.txt')
 
 """
 Create empty GRID [m] and initialize it with 0, this Log-Odd 
 value is maximum uncertainty (P = 0.5)
 """
-length = 500.0
-width = 500.0
+length = 1000.0
+width = 1000.0
 
 resolution = 0.1
 
