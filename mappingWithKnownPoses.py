@@ -16,13 +16,13 @@ import time
 """
 Parameter
 """
-folder = '20110926_005'
-nr_of_scans = 10
+folder = 'C:/Users/Thorsten/ownCloud/Shared/Studienarbeit/Programmierung/Testdaten/20110926_005'
 
 """
 Load Trajectory (known Poses)
 """
 traj = io.readTraj2xyz(folder+'/traj.txt')
+nr_of_scans = traj.shape[0]
 
 """
 Create List with filenames of the Pointclouds
@@ -97,4 +97,6 @@ for n in range(nr_of_scans):
     #plt.imsave('grid_'+str(n)+'.png', grid[:,:], cmap = 'binary')  
 
     dt = time.time() - t0
-    print('Duration: %.2f' % dt)        
+    print('Duration: %.2f' % dt)   
+
+plt.imsave('grid_'+str(n)+'.png', grid[:,:], cmap = 'binary')      

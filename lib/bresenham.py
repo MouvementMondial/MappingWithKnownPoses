@@ -29,12 +29,9 @@ def bresenham2D(startPoint, endPoint):
     delta_y = abs(endPoint[0,1] - startPoint[0,1])
     
     if delta_x > delta_y:        
-        path2 = np.zeros((delta_x,2))
+        path = np.zeros((delta_x,2))
     else:
-        path2 = np.zeros((delta_y,2))
-    
-    # earlier version: Save points in list -> not possible with numba(??)
-    # path = []
+        path = np.zeros((delta_y,2))
       
     steepXY = (abs(endPoint[0,1] - startPoint[0,1]) > abs(endPoint[0,0] - startPoint[0,0]))
     if(steepXY):   
@@ -64,11 +61,10 @@ def bresenham2D(startPoint, endPoint):
             y += step[1]             
             errorXY += delta[0]
             
-        path2[x-startPoint[0,0],0] = point[0]
-        path2[x-startPoint[0,0],1] = point[1]
-        #path.append(point)
+        path[x-startPoint[0,0],0] = point[0]
+        path[x-startPoint[0,0],1] = point[1]
     
-    return path2
+    return path
 
 def bresenham3D(startPoint, endPoint):
     """
