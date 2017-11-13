@@ -36,6 +36,6 @@ def updateFree(path,grid,l_free,l_min):
         
         grid[path_x, path_y] += l_free
         
-        # value < threshold? -> clamping  (Faktor 10 mit min-Funktion!)
+        # value < threshold? -> clamping
         if grid[path_x, path_y] < l_min:
             grid[path_x, path_y] = l_min
