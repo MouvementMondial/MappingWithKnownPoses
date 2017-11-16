@@ -22,3 +22,6 @@ def rotationMatrix_ypr(yaw, pitch, roll):
     Rp = np.matrix([[np.cos(pitch), 0.0, np.sin(pitch)],[0.0, 1.0, 0.0],[-np.sin(pitch), 0.0, np.cos(pitch)]])
     Ry = np.matrix([[np.cos(yaw), -np.sin(yaw), 0.0],[np.sin(yaw), np.cos(yaw), 0.0],[0.0, 0.0, 1.0]])
     return Ry*Rp*Rr
+    
+def transformPointcloud(pcl, rotationMatrix, translationMatrix):
+    return np.transpose(rotationMatrix*np.transpose(pcl))+translationMatrix
