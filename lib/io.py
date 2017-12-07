@@ -4,6 +4,8 @@
 """
 
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 def readPointcloud2xyz(filename):
     pcl = pd.read_csv(filename, delimiter=',')
@@ -21,4 +23,10 @@ def writeGrid2Pcl(grid,filename,offset,resolution, l_max, l_min):
                 xpcl = x*resolution+offset[0,0]
                 ypcl = y*resolution+offset[0,1]
                 file.write(str(xpcl)+' '+str(ypcl)+'\n')
-    file.close              
+    file.close
+
+def writeGrid2Img(grid,filename):
+    plt.imsave(filename,grid[:,:],cmap='binary')
+
+def writePcl2xxy(pcl,filename):
+    np.savetxt(filename,pcl,delimiter=',',fmt='%1.7f')
