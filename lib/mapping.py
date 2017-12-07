@@ -39,3 +39,13 @@ def updateFree(path,grid,l_free,l_min):
         # value < threshold? -> clamping
         if grid[path_x, path_y] < l_min:
             grid[path_x, path_y] = l_min
+            
+@jit(nopython=True)
+def scan2mapDistance(grid,pcl,offset,resolution):
+    distance = 0;
+    for i in range(pcl.shape[0]):
+        # round points to cells
+        xi = int ( (pcl[i,0]-offset[0,0]) / resolution )
+        yi = int ( (pcl[i,1]-offset[0,1]) / resolution )
+        distance += grid[xi,yi]
+    return distance

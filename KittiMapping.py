@@ -12,6 +12,9 @@ import time
 
 from lib import mapping
 from lib import transform
+from lib import io
+from lib import filterPCL
+import matplotlib.pyplot as plt
 
 basedir = 'C:/KITTI'
 date = '2011_09_30'
@@ -26,6 +29,8 @@ Parameter PCL
 # The IMU is mounted at 0.63m height
 zCutMin = -0.05
 zCutMax = 0.05
+
+bbPseudoRadius = 30.0
 
 """
 Parameter mapping from Octomap paper
@@ -96,19 +101,26 @@ for scan in dataset.velo:
     # nochmal Feinfilterung der Höhe
     zCutMin_global = zCutMin + alt
     zCutMax_global = zCutMax + alt
-
-    binary = np.logical_and( points[:,2]>zCutMin_global, points[:,2]<zCutMax_global)  
-    binary3 = np.column_stack((binary,binary,binary)) 
-    pointsFiltered = points[binary3]
-    pointsFiltered = np.reshape(pointsFiltered,(-1,3))
+    points = filterPCL.filterZ(points,zCutMin_global,zCutMax_global)
     
-    mapping.addMeasurement(grid,pointsFiltered[:,0],pointsFiltered[:,1],pos_sensor,offset,resolution,l_occupied,l_free,l_min,l_max)
+    # limit range
+    points = filterPCL.filterBB(points,bbPseudoRadius,pos_cartesian[0],pos_cartesian[1])
+    
+    # add measurement to grid    
+    mapping.addMeasurement(grid,points[:,0],points[:,1],pos_sensor,offset,resolution,l_occupied,l_free,l_min,l_max)
+    td0 = time.time()    
+    distance = mapping.scan2mapDistance(grid,points,offset,resolution)
+    dtd0 = time.time() - td0    
+    print('Distance: %.2f' % distance)
+    print('Distance Duration: %.5f' % dtd0)
   
     # save traj point
     traj.append(T)
     nr = nr + 1
     dt = time.time() - t0
     print('Duration: %.2f' % dt)
-  
+    
+
 # save map
-plt.imsave('grid_'+str(n)+'.png', grid[:,:], cmap = 'binary') 
+plt.imsave('grid_'+str(nr)+'.png', grid[:,:], cmap = 'binary') 
+io.writeGrid2Pcl(grid,'gridALSpcl.txt',offset,resolution,l_max,l_min)
