@@ -18,8 +18,8 @@ from lib import filterPCL
 
 
 basedir = 'C:/KITTI'
-date = '2011_09_26'
-drive = '0005'
+date = '2011_09_30'
+drive = '0027'
 
 dataset = pykitti.raw(basedir, date, drive, imformat='cv2')
 it = dataset.oxts
@@ -46,8 +46,8 @@ l_max = 3.5
 Create empty GRID [m] and initialize it with 0, this Log-Odd 
 value is maximum uncertainty (P = 0.5)
 """
-length = 200.0
-width = 200.0
+length = 100.0
+width = 100.0
 resolution = 0.1
 
 grid = np.zeros((int(length/resolution),
@@ -105,8 +105,14 @@ for scan in dataset.velo:
     # rotate points to street plane -> pitch and roll
     points = transform.rotatePointcloud(points,transform.rotationMatrix_ypr(0,pitch,roll))       
     
+    io.writePcl2xxy(points,'pcl_'+str(nr)+'.txt')
+    
     # project points to xy-plane (delete z values)
     points = np.delete(points,2,1)
+    
+    print(nr)
+
+    print(yaw)    
     
     """
     Estimate Position with pos-system and transform pointcloud to 
@@ -133,6 +139,8 @@ for scan in dataset.velo:
     nr = nr + 1
     dt = time.time() - t0
     print('Duration: %.2f' % dt)
+    
+    io.writeGrid2file(grid,'grid_'+str(nr)+'.txt')
     
 # save map
 io.writeGrid2Img(grid,'grid_'+str(nr)+'.png')

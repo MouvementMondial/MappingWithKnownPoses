@@ -30,3 +30,10 @@ def writeGrid2Img(grid,filename):
 
 def writePcl2xxy(pcl,filename):
     np.savetxt(filename,pcl,delimiter=',',fmt='%1.7f')
+    
+def writeGrid2file(grid,filename):
+    np.savetxt(filename,grid,fmt='%1.5f')    
+    
+def readTxt2Grid(filename):
+    return np.loadtxt(filename)
+    

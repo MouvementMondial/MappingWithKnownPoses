@@ -36,8 +36,8 @@ for m in range(nr_of_scans):
 Create empty GRID [m] and initialize it with 0, this Log-Odd 
 value is maximum uncertainty (P = 0.5)
 """
-length = 1000.0
-width = 1000.0
+length = 100.0
+width = 100.0
 
 resolution = 0.1
 
@@ -97,6 +97,8 @@ for n in range(nr_of_scans):
     #plt.imsave('grid_'+str(n)+'.png', grid[:,:], cmap = 'binary')  
 
     dt = time.time() - t0
-    print('Duration: %.2f' % dt)   
+    print('Duration: %.2f' % dt)
+    
+    io.writeGrid2file(grid,'grid_'+str(n)+'.txt')
 
 plt.imsave('grid_'+str(n)+'.png', grid[:,:], cmap = 'binary')      
