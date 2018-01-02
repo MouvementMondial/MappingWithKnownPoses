@@ -16,7 +16,7 @@ import time
 """
 Parameter
 """
-folder = 'C:/Users/Thorsten/ownCloud/Shared/Studienarbeit/Programmierung/Testdaten/20110930_027'
+folder = 'C:/KITTI/'
 
 """
 Load Trajectory (known Poses)

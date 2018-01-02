@@ -29,7 +29,7 @@ import random
 
 print('Start')
 
-folder = 'C:/KITTI/Testdaten/partikel/'
+folder = 'C:/KITTI/Testdaten/partikel_20110926_0005/'
 
 grid = io.readTxt2Grid(folder+'grid_2.txt')
 pcl = io.readPointcloud2xyz(folder+'pcl_2.txt')
@@ -45,9 +45,10 @@ xyd = np.zeros((3,nrParticle))
 
 print('Create particles')
 for _ in range(0,nrParticle):
-    x = random.uniform(-1.5,1.5)
-    y = random.uniform(-1.5,1.5)
-    yaw = -0.5436626732051;
+    x = random.uniform(-0.5,0.5)
+    y = random.uniform(-0.5,0.5)
+    #yaw = -0.5436626732051#0027
+    yaw = -1.1811786732051 #0005
     yawERR = 0.0
     yaw = random.uniform(-yawERR+yaw,yawERR+yaw)
     p = Particle(x,y,yaw,1)
@@ -56,6 +57,7 @@ for _ in range(0,nrParticle):
 print('Weight particles')
 weightMin = math.inf
 for p in particles:
+    print(weightMin)
     pclt = transform.rotatePointcloud(pcl,transform.rotationMatrix_2D(p.yaw))
     pclt = transform.translatePointcloud(pclt,np.matrix([p.x,p.y]))
     p.weight = mapping.scan2mapDistance(grid,pclt,offset,resolution)   

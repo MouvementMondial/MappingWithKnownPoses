@@ -18,8 +18,8 @@ from lib import filterPCL
 
 
 basedir = 'C:/KITTI'
-date = '2011_09_30'
-drive = '0027'
+date = '2011_09_26'
+drive = '0005'
 
 dataset = pykitti.raw(basedir, date, drive, imformat='cv2')
 it = dataset.oxts
