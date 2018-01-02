@@ -47,5 +47,6 @@ def scan2mapDistance(grid,pcl,offset,resolution):
         # round points to cells
         xi = int ( (pcl[i,0]-offset[0,0]) / resolution )
         yi = int ( (pcl[i,1]-offset[0,1]) / resolution )
-        distance += grid[xi,yi]
+        if grid[xi,yi] > 0:    
+            distance += grid[xi,yi]
     return distance
