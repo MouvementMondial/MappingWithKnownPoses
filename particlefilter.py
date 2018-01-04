@@ -29,7 +29,7 @@ import random
 
 print('Start')
 
-scanNr = 58 # start bei 1
+scanNr = 1 # start bei 1
 
 folder = 'C:/KITTI/Testdaten/partikel_20110926_0005/'
 
@@ -38,15 +38,13 @@ pcl = io.readPointcloud2xyz(folder+'pcl_'+str(scanNr)+'.txt')
 pcl = np.delete(pcl,2,1)
 traj = io.readTraj2xyz(folder+'traj.txt')
 
-
-
 offset = np.array([[-50,-50]])
 offsetTraj = np.array([[traj[0,0],traj[0,1]]])
 resolution = 0.1
 
 particles = []
 
-nrParticle = 1000
+nrParticle = 10000
 xyd = np.zeros((3,nrParticle))
 
 print('Create particles')
@@ -108,7 +106,7 @@ plt.scatter((scY[0]-offset[0,1])/resolution,(scX[0]-offset[0,0])/resolution,c='c
 # plot pcl
 pclt = transform.rotatePointcloud(pcl,transform.rotationMatrix_2D(scYaw[0]))
 pclt = transform.translatePointcloud(pclt,np.matrix([scX[0],scY[0]]))
-plt.scatter(([pclt[:,1]]-offset[0,0])/resolution,([pclt[:,0]]-offset[0,1])/resolution,c='m')
+plt.scatter(([pclt[:,1]]-offset[0,0])/resolution,([pclt[:,0]]-offset[0,1])/resolution,c='m',edgecolors='none')
 
 # plot trajectory
 plt.scatter(([traj[:,1]]-offsetTraj[0,1]-offset[0,1])/resolution,
@@ -122,7 +120,7 @@ plt.scatter(([traj[scanNr,1]]-offsetTraj[0,1]-offset[0,1])/resolution,
 #plt.hist(scYaw[0:printBest])
 #plt.figure(2)
 #plt.hist(scD[0:printBest])
-#plt.figure(3)
+#plt.figure(1)
 #plt.plot(np.arange(0,nrParticle,1),scDsum,marker='o')
 #xyyd = [[p.x,p.y,p.yaw,p.weight] for p in newParticles]
 #scX,scY,scYaw,scD = zip(*xyyd)

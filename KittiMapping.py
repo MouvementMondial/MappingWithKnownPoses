@@ -86,8 +86,8 @@ for scan in dataset.velo:
     
     # first measurement: get offset
     if nr == 0:
-        offset = np.array([[pos_sensor[0,0]-length/2,
-                            pos_sensor[0,1]-width/2]])
+        offset = np.array([[pos_sensor[0,0]-length/2.0,
+                            pos_sensor[0,1]-width/2.0]])
 
     """
     Filter pointcloud and rotate with pitch and roll from pos-system to street plane
@@ -99,7 +99,7 @@ for scan in dataset.velo:
     # limit range 
     points = filterPCL.filterBB(points,bbPseudoRadius,0.0,0.0)
     
-    # get pcl where z-value is in a certain range, in street plane!
+    # get pcl where z-value is in a certain range, in vehicle plane!
     points = filterPCL.filterZ(points,zCutMin,zCutMax)
     
     # rotate points to street plane -> pitch and roll
