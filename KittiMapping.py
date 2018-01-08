@@ -19,7 +19,7 @@ from lib import filterPCL
 
 basedir = 'C:/KITTI'
 date = '2011_09_26'
-drive = '0005'
+drive = '0117'
 
 dataset = pykitti.raw(basedir, date, drive, imformat='cv2')
 it = dataset.oxts
@@ -46,8 +46,8 @@ l_max = 3.5
 Create empty GRID [m] and initialize it with 0, this Log-Odd 
 value is maximum uncertainty (P = 0.5)
 """
-length = 100.0
-width = 100.0
+length = 1000.0
+width = 1000.0
 resolution = 0.1
 
 grid = np.zeros((int(length/resolution),
@@ -105,7 +105,7 @@ for scan in dataset.velo:
     # rotate points to street plane -> pitch and roll
     points = transform.rotatePointcloud(points,transform.rotationMatrix_ypr(0,pitch,roll))       
     
-    io.writePcl2xxy(points,'pcl_'+str(nr)+'.txt')
+    #io.writePcl2xxy(points,'pcl_'+str(nr)+'.txt')
     
     # project points to xy-plane (delete z values)
     points = np.delete(points,2,1)
@@ -140,8 +140,8 @@ for scan in dataset.velo:
     dt = time.time() - t0
     print('Duration: %.2f' % dt)
     
-    io.writeGrid2file(grid,'grid_'+str(nr)+'.txt')
+    #io.writeGrid2file(grid,'grid_'+str(nr)+'.txt')
     
 # save map
-io.writeGrid2Img(grid,'grid_'+str(nr)+'.png')
-io.writeGrid2Pcl(grid,'gridALSpcl.txt',offset,resolution,l_max,l_min)
+io.writeGrid2Img(grid,date+'_'+drive+'_grid_'+str(nr)+'mwkp.png')
+io.writeGrid2Pcl(grid,date+'_'+drive+'_gridASpcl_'+str(nr)+'mwkpl.txt',offset,resolution,l_max,l_min)
