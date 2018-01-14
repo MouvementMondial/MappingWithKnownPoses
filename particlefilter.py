@@ -29,7 +29,7 @@ import random
 
 print('Start')
 
-scanNr = 1 # start bei 1
+scanNr = 42 # start bei 1
 
 folder = 'C:/KITTI/Testdaten/partikel_20110926_0005/'
 
@@ -44,16 +44,17 @@ resolution = 0.1
 
 particles = []
 
-nrParticle = 10000
+nrParticle = 500
+nrParticleResample = 100
 xyd = np.zeros((3,nrParticle))
 
 print('Create particles')
 for _ in range(0,nrParticle):
-    x = np.random.normal(traj[scanNr,0]-offsetTraj[0,0],1)
-    y = np.random.normal(traj[scanNr,1]-offsetTraj[0,1],1)
+    x = np.random.normal(traj[scanNr,0]-offsetTraj[0,0],0.2)
+    y = np.random.normal(traj[scanNr,1]-offsetTraj[0,1],0.2)
     #yaw = -0.5436626732051#0027
     yaw = traj[scanNr-1,2]
-    yawERR = 0.00
+    yawERR = 0.01
     yaw = random.uniform(-yawERR+yaw,yawERR+yaw)
     p = Particle(x,y,yaw,1)
     particles.append(p)
@@ -74,7 +75,35 @@ for p in particles:
     weightSum += p.weight
 for p in particles:
     p.weight /= weightSum
-    
+
+print('Sort Particles')
+particles.sort(key = lambda Particle: Particle.weight,reverse=True)
+
+
+print('Resample')
+# Keep only best particles
+bestParticles = particles[:10]
+particles.clear()
+for p in bestParticles:
+    for _ in range(0,nrParticleResample):
+        x = np.random.normal(p.x,0.05/6)
+        y = np.random.normal(p.y,0.05/6)
+        yaw = p.yaw
+        yawERR = 0.01/6
+        yaw = random.uniform(-yawERR+yaw,yawERR+yaw)
+        p = Particle(x,y,yaw,1)
+        particles.append(p)
+
+'''
+print('Resample')
+xMean = sum(_.x for _ in particles)/len(particles)
+yMean = sum(_.y for _ in particles)/len(particles)
+yawMean = sum(_.yaw for _ in particles)/len(particles)
+print(xMean)
+print(yMean)
+print(yawMean)
+'''
+'''
 print('Resample')
 particles.sort(key = lambda Particle: Particle.weight)
 scDsum = []
@@ -85,12 +114,29 @@ for p in particles:
 newParticles = []
 for _ in range(0,nrParticle):
     newParticles.append(particles[bisect.bisect_left(scDsum, random.uniform(0,1))])
-    
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 print('show')
 printBest = 15
 
 particles.sort(key = lambda Particle: Particle.weight,reverse=True)
-newParticles.sort(key = lambda Particle: Particle.weight,reverse=True)
+#newParticles.sort(key = lambda Particle: Particle.weight,reverse=True)
 xyyd = [[p.x,p.y,p.yaw,p.weight] for p in particles]
 scX,scY,scYaw,scD = zip(*xyyd)
 
@@ -116,9 +162,10 @@ plt.scatter(([traj[scanNr,1]]-offsetTraj[0,1]-offset[0,1])/resolution,
             ([traj[scanNr,0]]-offsetTraj[0,0]-offset[0,0])/resolution,
             c='g',s=80)
 
-#plt.figure(1)
-#plt.hist(scYaw[0:printBest])
-#plt.figure(2)
+plt.figure(1)
+scYaw = np.vstack(scYaw)
+plt.hist(scYaw[0:printBest]/math.pi*180)
+
 #plt.hist(scD[0:printBest])
 #plt.figure(1)
 #plt.plot(np.arange(0,nrParticle,1),scDsum,marker='o')
