@@ -24,8 +24,8 @@ Load data
 
 # raw
 basedir = 'C:/KITTI'
-date = '2011_09_26'
-drive = '0117'
+date = '2011_09_30'
+drive = '0027'
 dataset = pykitti.raw(basedir, date, drive, imformat='cv2')
 it = dataset.oxts
 """
@@ -50,8 +50,8 @@ Parameter mapping from Octomap paper
 """
 l_occupied = 0.85
 l_free = -0.4
-l_min = -2.0
-l_max = 3.5
+l_min = -10.0#-2.0
+l_max = 40#3.5
 
 
 """
@@ -90,7 +90,7 @@ evaDistGT.append(np.matrix([0.0]))
 yaw = 0
 T = np.matrix([0.0,0.0])
 dYaw = 0
-dT = np.matrix([0.0,0.7])
+dT = np.matrix([0.0,0.0])
 nr = 0
 
 for scan in dataset.velo:
@@ -138,7 +138,7 @@ for scan in dataset.velo:
     bestEstimateParticle = Particle(T[0,0],T[0,1],yaw,0)
     if nr!=0:
         # Create particles
-        for _ in range(0,nrParticle):
+        for _ in range(0,int(nrParticle/2)):
             x = np.random.normal(T[0,0]+dT[0,0],stddPos)
             y = np.random.normal(T[0,1]+dT[0,1],stddPos)
             tempYaw = np.random.normal(yaw+dYaw,stddYaw)
@@ -152,37 +152,19 @@ for scan in dataset.velo:
             p.weight = mapping.scan2mapDistance(grid,pointsT,startPos-offset,resolution)
             if p.weight < weightMin:
                 weightMin = p.weight
-        '''
-        # Norm weights
-        weightSum = 0
-        for p in particles:
-            p.weight -= weightMin
-            weightSum += p.weight
-        for p in particles:
-            p.weight /= weightSum
-        '''
         # Sort particles with weight
         particles.sort(key = lambda Particle: Particle.weight,reverse=True)
         # get only the 10 best particles
-        bestParticles = particles[:5]
+        bestParticles = particles[:10]
 
-        '''
-        print('Resample')
-        xMean = sum(_.x for _ in bestparticles)/len(bestparticles)
-        yMean = sum(_.y for _ in bestparticles)/len(bestparticles)
-        yawMean = sum(_.yaw for _ in bestparticles)/len(bestparticles)        
-        bestEstimateParticle = Particle(xMean,yMean,yawMean,1.0)
-        '''
-        
-        """
         print('Resample')
         particles.clear()
-        nrParticleResample = 100
+        nrParticleResample = 50
         for p in bestParticles:
             for _ in range(0,nrParticleResample):
-                x = np.random.normal(p.x,stddPos/1)
-                y = np.random.normal(p.y,stddPos/1)
-                yaw = np.random.normal(p.yaw,stddYaw/1)
+                x = np.random.normal(p.x,stddPos/6)
+                y = np.random.normal(p.y,stddPos/6)
+                yaw = np.random.normal(p.yaw,stddYaw/3)
                 pp = Particle(x,y,yaw,1)
                 particles.append(pp)    
         # Weight particles
@@ -193,9 +175,9 @@ for scan in dataset.velo:
 
         # Sort particles with weight
         particles.sort(key = lambda Particle: Particle.weight,reverse=True)
-        """
+        
         # Choose best particle
-        bestEstimateParticle = particles[0]      
+        bestEstimateParticle = particles[0]
         dT = np.matrix([bestEstimateParticle.x,bestEstimateParticle.y])-T
         dYaw = bestEstimateParticle.yaw-yaw
         T = np.matrix([bestEstimateParticle.x,bestEstimateParticle.y])
@@ -204,7 +186,7 @@ for scan in dataset.velo:
         dist = evaDist[-1]+np.sqrt( np.multiply(dT[0,0], dT[0,0]) + np.multiply( dT[0,1], dT[0,1]))
         evaDist.append(dist)
         distGT = evaDist[-1]+np.sqrt( np.multiply(trajGT[-1][0,0]-trajGT[-2][0,0],trajGT[-1][0,0]-trajGT[-2][0,0])
-                             +np.multiply(trajGT[-1][0,1]-trajGT[-2][0,1],trajGT[-1][0,1]-trajGT[-2][0,1]))
+                                         +np.multiply(trajGT[-1][0,1]-trajGT[-2][0,1],trajGT[-1][0,1]-trajGT[-2][0,1]))
         evaDistGT.append(distGT)
               
     """
@@ -222,7 +204,7 @@ for scan in dataset.velo:
     temp = np.matrix([bestEstimateParticle.x,bestEstimateParticle.y,bestEstimateParticle.yaw])
     evaTraj.append(temp)
     
-    #if nr == 1:
+    #if nr == 42:
     #     break
     nr+=1
     dt = time.time() - t0
