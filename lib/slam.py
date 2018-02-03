@@ -15,7 +15,7 @@ from lib import filterPCL
 from lib.Particle import Particle
 
 def slatch(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,resolution,nrParticle,stddPos,stddYaw,UID):
-    print('Start slatch')    
+    #print('Start slatch')    
     
     """
     Parameter
@@ -38,13 +38,12 @@ def slatch(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,resolutio
     """
     length = groundTruth[:,0].max()-groundTruth[:,0].min()+200.0
     width = groundTruth[:,1].max()-groundTruth[:,1].min()+200.0
-    resolution = 0.10
     
     grid = np.zeros((int(length/resolution),int(width/resolution)),order='C')
     offset = np.array([math.fabs(groundTruth[:,0].min()-100.0),math.fabs(groundTruth[:,1].min()-100.0),0.0]) # x y yaw
     
-    print('Length: '+str(length))
-    print('Width: '+str(width))    
+    #print('Length: '+str(length))
+    #print('Width: '+str(width))    
     
     """
     Declare some varibles 
@@ -195,12 +194,13 @@ def slatch(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,resolutio
         pointcloud = pointcloud + np.matrix([bestEstimateParticle.x,
                                              bestEstimateParticle.y])
         # Add measurement to grid
+        #print('Start mapping'+str(ii))
         mapping.addMeasurement(grid,pointcloud[:,0],pointcloud[:,1],
                                np.matrix([bestEstimateParticle.x, bestEstimateParticle.y,0.0]),
                                startPose-offset,resolution,l_occupied,l_free,l_min,l_max)
         # Add the used pose to the trajectory
         trajectory.append(np.matrix([bestEstimateParticle.x,bestEstimateParticle.y,bestEstimateParticle.yaw]))
-        print('Scan '+str(ii)+' processed: '+str(time.time()-t0)+'s')
+        #print('Scan '+str(ii)+' processed: '+str(time.time()-t0)+'s')
         
     # calculate evaluation
     # position error
@@ -217,10 +217,24 @@ def slatch(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,resolutio
     """
     Save results
     """
+    UID = str(time.time())
     # grid
     plt.imsave(path+'/grid_'+UID+'.png',grid[:,:],cmap='binary')
     # log file with parameter
-    
+    logfile = open(path+'/log_'+UID+'.txt','w')
+    logfile.write('Slatch with resampling'+'\n')
+    logfile.write('Measurement: '+path+'\n')
+    logfile.write('UID: '+UID+'\n')
+    logfile.write('bbPseudoRadius = '+str(bbPseudoRadius)+'\n')
+    logfile.write('l_occupied = '+str(l_occupied)+'\n')
+    logfile.write('l_free = '+str(l_free)+'\n')
+    logfile.write('l_min = '+str(l_min)+'\n')
+    logfile.write('l_max = '+str(l_max)+'\n')
+    logfile.write('resolution = '+str(resolution)+'\n')
+    logfile.write('stddPos = '+str(stddPos)+'\n')
+    logfile.write('stddYaw = '+str(stddYaw)+'\n')
+    logfile.write('errorSum = '+str(errorPos.sum())+'\n')
+    logfile.close()
     # trajectory 
     np.savetxt(path+'trajectory_'+UID+'.txt',trajectory,delimiter=',')
     # error
