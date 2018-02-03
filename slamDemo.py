@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 import time
 import math
 
+from lib import posEstimation
 from lib import mapping
 from lib import filterPCL
-from lib.Particle import Particle
 
 '''
 Load data 
@@ -64,16 +64,10 @@ print('Width: '+str(width))
 """
 Declare some varibles 
 """
-# save the particles of the particle filter here
-particles = [] 
 # save estimated pose (x y yaw) here
 trajectory = [] 
-# save the best pose for each iteration here, initialisation with first pose
-bestEstimateParticle  = Particle(startPose[0],startPose[1],startPose[2],1.0)
-# save the difference of two poses here
-deltaPose = np.matrix([0,0,0])
 # save the estimated pose here (mouvement model with deltaPose)
-estimatePose = np.matrix([0,0,0])
+estimatePose = np.matrix([startPose[0],startPose[1],startPose[2]])
 
 """
 Process all Scans
@@ -81,7 +75,6 @@ Process all Scans
 try:
     for ii in range(0,nrOfScans+1):
         t0 = time.time() # measure time
-        particles.clear() # new particles every scan
     
         """
         Load and filter pointcloud
@@ -96,7 +89,7 @@ try:
     
         """
         First measurement: map with initial position
-
+    
         Second measurement: There is no information about the previous movement 
         of the robot, use the advanced particlefilter with a lot of particles
         to find the first estimate. 
@@ -109,112 +102,41 @@ try:
         """
         if ii != 0: # if it is not the first measurement
             """
-            Estimate the next pose. The robot will move as it did in the last step.
+            Estimate the next pose
             """
             if ii == 1: # if it is the second measurement: Use particlefilter to find estimate
-                for _ in range(0,50000):
-                    particles.append(Particle(np.random.normal(startPose[0],stddPos*10),
-                                              np.random.normal(startPose[1],stddPos*10),
-                                              np.random.normal(startPose[2],stddYaw*10),
-                                              0.0))
-                # Weight particles
-                for p in particles:
-                    # transform pointcloud to estimated pose
-                    # rotation
-                    R = np.matrix([[np.cos(p.yaw),-np.sin(p.yaw)],
-                                   [np.sin(p.yaw),np.cos(p.yaw)]])
-                    pointcloudTransformed = pointcloud * np.transpose(R)
-                    # translation            
-                    pointcloudTransformed = pointcloudTransformed + np.matrix([p.x,p.y])
-                    # weight this solution
-                    p.weight = mapping.scan2mapDistance(grid,pointcloudTransformed,
-                                                        startPose-offset,resolution)
-                # sort particles by weight (best first)
-                particles.sort(key = lambda Particle: Particle.weight,reverse=True)
-                estimatePose = np.matrix([particles[0].x,particles[0].y,particles[0].yaw])      
-                particles.clear()
-        
+                estimatePose = posEstimation.fitScan2Map(grid,pointcloud,50000,0,0,
+                                                         estimatePose,stddPos*10,stddYaw*10,
+                                                         startPose,offset,resolution)              
+                        
             else: # it is not the first or second measurement, use movement model
                 deltaPose = trajectory[-1]-trajectory[-2]
                 estimatePose = trajectory[-1]+deltaPose
         
             """
-            Particle filter with 500 Particles for first estimate
+            Fit scan to map
             """
-            # Create first 500 Particles
-            for _ in range(0,500):
-                particles.append(Particle(np.random.normal(estimatePose[0,0],stddPos),
-                                          np.random.normal(estimatePose[0,1],stddPos),
-                                          np.random.normal(estimatePose[0,2],stddYaw),
-                                          0.0))
-                                      
-            # Weight particles
-            for p in particles:
-                # transform pointcloud to estimated pose
-                # rotation
-                R = np.matrix([[np.cos(p.yaw),-np.sin(p.yaw)],
-                               [np.sin(p.yaw),np.cos(p.yaw)]])
-                pointcloudTransformed = pointcloud * np.transpose(R)
-                # translation            
-                pointcloudTransformed = pointcloudTransformed + np.matrix([p.x,p.y])
-                # weight this solution
-                p.weight = mapping.scan2mapDistance(grid,pointcloudTransformed,
-                                                    startPose-offset,resolution)
-            # sort particles by weight (best first)
-            particles.sort(key = lambda Particle: Particle.weight,reverse=True)
-        
-            """
-            Look in the neighborhood of the 10 best particles for better solutions
-            """
-            # get only the 10 best particles
-            bestParticles = particles[:10]
-            # delete the old particles
-            particles.clear()
-            # for each of the good particles, create 50 new particles
-            for p in bestParticles:
-                for _ in range(0,50):
-                    particles.append(Particle(np.random.normal(p.x,stddPos/6.0),
-                                              np.random.normal(p.y,stddPos/6.0),
-                                              np.random.normal(p.yaw,stddYaw/3.0),
-                                              0.0))
-            #Weight particles
-            for p in particles:
-                # Transform pointcloud to estimated pose
-                # rotation
-                R = np.matrix([[np.cos(p.yaw),-np.sin(p.yaw)],
-                               [np.sin(p.yaw),np.cos(p.yaw)]])
-                pointcloudTransformed = pointcloud * np.transpose(R)
-                # translation            
-                pointcloudTransformed = pointcloudTransformed + np.matrix([p.x,p.y])
-                # weight this solution
-                p.weight = mapping.scan2mapDistance(grid,pointcloudTransformed,
-                                                    startPose-offset,resolution)
-            
-            # sort particles by weight (best first)
-            particles.sort(key = lambda Particle: Particle.weight,reverse=True)
-        
-            """
-            Choose the best particle
-            """
-            bestEstimateParticle = particles[0]
+            estimatePose = posEstimation.fitScan2Map(grid,pointcloud,500,10,50,
+                                                     estimatePose,stddPos,stddYaw,
+                                                     startPose,offset,resolution)
     
         """
         Add measurement to grid
         """
         # Transform pointcloud to best estimate
         # rotation
-        R = np.matrix([[np.cos(bestEstimateParticle.yaw),-np.sin(bestEstimateParticle.yaw)],
-                       [np.sin(bestEstimateParticle.yaw),np.cos(bestEstimateParticle.yaw)]])
+        R = np.matrix([[np.cos(estimatePose[0,2]),-np.sin(estimatePose[0,2])],
+                       [np.sin(estimatePose[0,2]),np.cos(estimatePose[0,2])]])
         pointcloud = pointcloud * np.transpose(R)
         # translation
-        pointcloud = pointcloud + np.matrix([bestEstimateParticle.x,
-                                             bestEstimateParticle.y])
+        pointcloud = pointcloud + np.matrix([estimatePose[0,0],
+                                             estimatePose[0,1]])
         # Add measurement to grid
         mapping.addMeasurement(grid,pointcloud[:,0],pointcloud[:,1],
-                               np.matrix([bestEstimateParticle.x, bestEstimateParticle.y,0.0]),
+                               np.matrix([estimatePose[0,0], estimatePose[0,1],0.0]),
                                startPose-offset,resolution,l_occupied,l_free,l_min,l_max)
         # Add the used pose to the trajectory
-        trajectory.append(np.matrix([bestEstimateParticle.x,bestEstimateParticle.y,bestEstimateParticle.yaw]))
+        trajectory.append(estimatePose)
         print('Scan '+str(ii)+' processed: '+str(time.time()-t0)+'s')
 
 except:

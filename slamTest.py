@@ -49,7 +49,7 @@ def slatchOpt(resolution):
     nr = 10
     for ii in range(0,nr):
         t0 = time.time()
-        errorSum = slam.slatch(path,nrOfScans,bbPseudoRadius,
+        errorSum = slam.slatchNoResample(path,nrOfScans,bbPseudoRadius,
                                l_occupied,l_free,l_min,l_max,
                                fixResolution,
                                nrParticle,stddPos,stddYaw,'') 
