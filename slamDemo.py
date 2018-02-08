@@ -19,7 +19,7 @@ Load data
 (use script 'KittiExport' to create this file formate from KITTI raw data or
 KITTI odometry data)
 '''
-path = 'D:/KITTI/odometry/dataset/04_export/'
+path = 'D:/KITTI/odometry/dataset/07_export/'
 nrOfScans = 270
 startPose = np.loadtxt(path+'firstPose.txt',delimiter=',')
 groundTruth = np.asmatrix(np.loadtxt(path+'groundTruth.txt',delimiter=','))
@@ -53,10 +53,13 @@ Use the ground truth trajectory to calculate width and length of the grid
 """
 length = groundTruth[:,0].max()-groundTruth[:,0].min()+200.0
 width = groundTruth[:,1].max()-groundTruth[:,1].min()+200.0
+#length = 1500.0
+#width = 1500.0
 resolution = 0.10
 
 grid = np.zeros((int(length/resolution),int(width/resolution)),order='C')
 offset = np.array([math.fabs(groundTruth[:,0].min()-100.0),math.fabs(groundTruth[:,1].min()-100.0),0.0]) # x y yaw
+#offset = np.array([500.0,500.0,0.0])
 
 print('Length: '+str(length))
 print('Width: '+str(width))
@@ -138,6 +141,8 @@ try:
         # Add the used pose to the trajectory
         trajectory.append(estimatePose)
         print('Scan '+str(ii)+' processed: '+str(time.time()-t0)+'s')
+        if ii == 50:
+            break
 
 except:
     print('There was an exception, show results:')
@@ -157,8 +162,10 @@ plt.imshow(grid[:,:], interpolation ='none', cmap = 'binary')
 trajectory = np.vstack(trajectory)
 plt.scatter(([trajectory[:,1]]-startPose[1]+offset[1])/resolution,
             ([trajectory[:,0]]-startPose[0]+offset[0])/resolution,
-            c='b',s=30,edgecolors='none', label = 'Trajektorie SLAM')
+            c='b',s=20,edgecolors='none', label = 'Positionen Roboter')
 
+plt.legend()
+"""
 # plot ground truth trajectory
 plt.scatter(([groundTruth[:,1]]-startPose[1]+offset[1])/resolution,
             ([groundTruth[:,0]]-startPose[0]+offset[0])/resolution,
@@ -183,3 +190,4 @@ plt.plot(distanceGT,errorPos)
 plt.title('Abweichung Position zu Ground Truth')
 plt.xlabel('Distanz GT [m]')
 plt.ylabel('Abweichung [m]')
+"""

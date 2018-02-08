@@ -32,7 +32,7 @@ Load kitti dataset
 """
 # odometry
 basedir = 'D:/KITTI/odometry/dataset'
-sequence = '00'
+sequence = '20'
 pathSave = basedir+'/'+sequence+'_export/'
 if not os.path.exists(pathSave):
     os.makedirs(pathSave)
@@ -48,6 +48,7 @@ T_Cam2Velod = np.matrix(dataset.calib.T_cam0_velo[0:3,3]).transpose()
 """
 Export ground truth from poses
 """
+"""
 transMatrices = np.loadtxt(basedir+'/poses/'+sequence+'.txt',delimiter=' ')
 trajectory = np.delete(transMatrices,[0,1,2,4,5,6,8,9,10],1)
 #trajectory = trajectory + np.transpose(T_Cam2Velod)
@@ -55,6 +56,7 @@ trajectory = np.dot(np.transpose(R_Cam2Velod),np.transpose(trajectory))
 #offset = np.matrix([[-T_Cam2Velod[2,0]],[T_Cam2Velod[0,0]],[T_Cam2Velod[1,0]]])
 #trajectory = trajectory + offset
 groundTruth = np.transpose(trajectory)
+"""
 """
 Process all measurements
 """
@@ -83,5 +85,5 @@ np.savetxt(pathSave+'firstPose.txt',np.matrix(([0.0,0.0,0.0])),delimiter=',',fmt
 """    
 Save ground truth
 """
-np.savetxt(pathSave+'groundTruth.txt',groundTruth,delimiter=',',fmt='%1.3f')
+#np.savetxt(pathSave+'groundTruth.txt',groundTruth,delimiter=',',fmt='%1.3f')
 

@@ -138,7 +138,7 @@ def slatch(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,resolutio
     """
     Save results
     """
-    UID = str(time.time())
+    UID = str(time.time())+'test'
     # grid
     plt.imsave(path+'/grid_'+UID+'.png',grid[:,:],cmap='binary')
     # log file with parameter
@@ -161,7 +161,7 @@ def slatch(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,resolutio
     # error
     np.savetxt(path+'error_'+UID+'.txt',np.hstack((distanceGT,errorPos)),delimiter=',')
     
-    return errorPos.sum()
+    return trajectory
 
 #except:
     print('There was an exception, return -1')
@@ -315,7 +315,7 @@ def slatchNoResample(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max
     # error
     np.savetxt(path+'error_'+UID+'.txt',np.hstack((distanceGT,errorPos)),delimiter=',')
     
-    return errorPos.sum()
+    return trajectory
 
 #except:
     print('There was an exception, return -1')
