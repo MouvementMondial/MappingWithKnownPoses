@@ -36,8 +36,8 @@ import os
 Load kitti dataset
 """
 basedir = 'C:/KITTI'
-date = '2011_09_30'
-drive = '0027'
+date = '2011_09_26'
+drive = '0117'
 pathSave = basedir+'/'+date+'/'+date+'_'+drive+'_export/'
 if not os.path.exists(pathSave):
     os.makedirs(pathSave)
@@ -62,8 +62,8 @@ for scan in dataset.velo:
     pointcloud = np.delete(pointcloud,3,1)
     
     # save pointcloud as txt
-    np.savetxt(pathSave+'pointcloud_'+str(nr)+'.txt',pointcloud,delimiter=',',fmt='%1.3f')
-    #np.save(pathSave+'pointcloudNP_'+str(nr),pointcloud)
+    #np.savetxt(pathSave+'pointcloud_'+str(nr)+'.txt',pointcloud,delimiter=',',fmt='%1.3f')
+    np.save(pathSave+'pointcloudNP_'+str(nr),pointcloud)
     """
     Extract ground truth
     """

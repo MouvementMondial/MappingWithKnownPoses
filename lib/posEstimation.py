@@ -85,4 +85,72 @@ def fitScan2Map(grid,pcl,nrParticle1,nrParticleResample,nrParticle2,
     Return the best estimate
     """
     bestEstimateParticle = particles[0]
+    return np.matrix([bestEstimateParticle.x,bestEstimateParticle.y,bestEstimateParticle.yaw])
+
+def fitScan2Map2(grid,pcl,nrParticle1,nrParticleResample,
+                nrParticle2,nrParticle3,
+                firstEstimate,stddPos,stddYaw,
+                startPose,offset,resolution):
+    
+    # save the particles of the particle filter here
+    particles = []
+    
+    """
+    Particle filter with nrParticle1 Particles for first estimate
+    """                
+    # Create particles
+    for _ in range(0,nrParticle1):
+        particles.append(Particle(np.random.normal(firstEstimate[0,0],stddPos),
+                                  np.random.normal(firstEstimate[0,1],stddPos),
+                                  np.random.normal(firstEstimate[0,2],stddYaw),
+                                  0.0))
+    
+    # Weight and sort particles (best first)                       
+    particles = weightAndSortParticles(particles,grid,pcl,startPose,offset,resolution)    
+    
+    """
+    Return best particle if there is no resampling
+    """
+    if nrParticleResample == 0:
+        bestEstimateParticle = particles[0]
+        return np.matrix([bestEstimateParticle.x,bestEstimateParticle.y,bestEstimateParticle.yaw])
+   
+    """
+    Look in the neighborhood of the best particles for better solutions
+    """
+    # get only the best particles
+    bestParticles = particles[:nrParticleResample]
+    # delete the old particles
+    particles.clear()
+    
+    # for each of the good particles create new particles
+    for p in bestParticles:
+        for _ in range(0,nrParticle2):
+                particles.append(Particle(np.random.normal(p.x,stddPos/6.0),
+                                          np.random.normal(p.y,stddPos/6.0),
+                                          np.random.normal(p.yaw,stddYaw/3.0),
+                                          0.0))
+    """
+    Look in the neighborhood of the best particles for better solutions
+    """
+    # get only the best particles
+    bestParticles = particles[:nrParticleResample]
+    # delete the old particles
+    particles.clear()
+    
+    # for each of the good particles create new particles
+    for p in bestParticles:
+        for _ in range(0,nrParticle3):
+                particles.append(Particle(np.random.normal(p.x,stddPos/12.0),
+                                          np.random.normal(p.y,stddPos/12.0),
+                                          np.random.normal(p.yaw,stddYaw/6.0),
+                                          0.0))
+    
+    # Weight and sort particles (best first)                           
+    particles = weightAndSortParticles(particles,grid,pcl,startPose,offset,resolution) 
+    
+    """
+    Return the best estimate
+    """
+    bestEstimateParticle = particles[0]
     return np.matrix([bestEstimateParticle.x,bestEstimateParticle.y,bestEstimateParticle.yaw])    

@@ -14,7 +14,7 @@ def eigsorted(cov):
     order = vals.argsort()[::-1]
     return vals[order], vecs[:,order]
 
-path = 'D:/KITTI/odometry/dataset/04_export/'
+path = 'D:/KITTI/odometry/dataset/07_export/'
 
 nr = 50
 
@@ -25,7 +25,7 @@ plt.scatter([groundTruth[:,1]],[groundTruth[:,0]],
             c='g',s=20,edgecolors='none', label = 'Trajektorie Ground Truth')
 
 
-trajs = np.asmatrix(np.loadtxt(path+'04_trajs_slatchOHNE_01.txt',delimiter=','))
+trajs = np.asmatrix(np.loadtxt(path+'07_trajs_slatch_01.txt',delimiter=','))
 # mean trajs
 meanX = np.mean(trajs[:,::2],axis=1)
 meanY = np.mean(trajs[:,1::2],axis=1)
@@ -47,7 +47,7 @@ for ii in range(0,nr*2-1,2):
                 c='b',s=3,edgecolors='none')
 plt.scatter([meanY],[meanX],c='b',s=20,edgecolors='none',label = 'Trajektorien ohne Resampling')
 
-trajs = np.asmatrix(np.loadtxt(path+'04_trajs_slatch_01.txt',delimiter=','))
+trajs = np.asmatrix(np.loadtxt(path+'07_trajs_slatch_01_500_500.txt',delimiter=','))
 # mean trajs
 meanX = np.mean(trajs[:,::2],axis=1)
 meanY = np.mean(trajs[:,1::2],axis=1)
@@ -81,8 +81,8 @@ distanceGT = np.transpose(np.cumsum(distanceGT))
 
 plt.figure(2)
 plt.title('Entwicklung Varianz')
-plt.plot(distanceGT[::10,:],covSum1,c='b', label = 'mit Resampling')
-plt.plot(distanceGT[::10,:],covSum2,c='m', label = 'ohne Resampling')
+plt.plot(distanceGT[::10,:],covSum1,c='b', label = 'ohne Resampling')
+plt.plot(distanceGT[::10,:],covSum2,c='m', label = 'mit Resampling')
 plt.xlabel('Distanz')
 plt.ylabel('Varianz')
 plt.legend()

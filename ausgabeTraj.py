@@ -39,18 +39,17 @@ fixResolution = 0.1
 """
 Parameter particle Filter
 """
-nrParticle = 1000
 stddPos = 0.2
 stddYaw = 0.025
 
 trajs = []
-nr = 50
+nr = 1
 for ii in range(0,nr):
     t0 = time.time()
-    traj = slam.slatchNoResample(path,nrOfScans,bbPseudoRadius,
+    traj = slam.slatch(path,nrOfScans,bbPseudoRadius,
                            l_occupied,l_free,l_min,l_max,
                            fixResolution,
-                           nrParticle,stddPos,stddYaw,'') 
+                           stddPos,stddYaw,'') 
     trajs.append(np.delete(traj,2,1))
     print('iteration = '+str(ii)+
           ' resolution =' +str(fixResolution)+
