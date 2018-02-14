@@ -15,8 +15,8 @@ import time
 '''
 Load data
 '''
-path = 'D:/KITTI/odometry/dataset/07_export/'
-nrOfScans = 1100
+path = 'D:/KITTI/odometry/dataset/04_export/'
+nrOfScans = 270
 
 """
 Parameter PCL
@@ -43,10 +43,10 @@ stddPos = 0.2
 stddYaw = 0.025
 
 trajs = []
-nr = 1
+nr = 10
 for ii in range(0,nr):
     t0 = time.time()
-    traj = slam.slatch(path,nrOfScans,bbPseudoRadius,
+    traj = slam.slatch2Resample(path,nrOfScans,bbPseudoRadius,
                            l_occupied,l_free,l_min,l_max,
                            fixResolution,
                            stddPos,stddYaw,'') 

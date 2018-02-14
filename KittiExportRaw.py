@@ -36,14 +36,19 @@ import os
 Load kitti dataset
 """
 basedir = 'C:/KITTI'
-date = '2011_09_26'
-drive = '0117'
+date = '2011_09_30'
+drive = '0027'
 pathSave = basedir+'/'+date+'/'+date+'_'+drive+'_export/'
 if not os.path.exists(pathSave):
     os.makedirs(pathSave)
 
 dataset = pykitti.raw(basedir,date,drive)
 gpsImu = dataset.oxts
+
+"""
+Extract calibration (translation GPS/IMU -> Velodyne)
+"""
+T = np.matrix(dataset.calib.T_velo_imu[0:2,3]).transpose()
 
 """
 Process all measurements
@@ -63,17 +68,31 @@ for scan in dataset.velo:
     
     # save pointcloud as txt
     #np.savetxt(pathSave+'pointcloud_'+str(nr)+'.txt',pointcloud,delimiter=',',fmt='%1.3f')
+    
+    # save pointcloud as binary    
     np.save(pathSave+'pointcloudNP_'+str(nr),pointcloud)
+
     """
-    Extract ground truth
+    Extract ground truth and transform it to velodyne position
     """
     pose = next(gpsImu)
     latitude = pose.packet.lat
     longitude = pose.packet.lon
+    yaw = pose.packet.yaw
     # latitude and longitude to UTM
-    posUTM = utm.from_latlon(latitude,longitude)
+    posUtm = utm.from_latlon(latitude,longitude)
+    posUtm = np.matrix([posUtm[0],posUtm[1]])
+    # Rotation Matrix to rotate IMU2VELO translation vector
+    R = np.matrix([[np.cos(yaw), -np.sin(yaw)],[np.sin(yaw),np.cos(yaw)]])
+    
+    # Rotate translation vector 
+    T_rot = R*T        
+
+    # Calculate Ground Truth at the position of the velodyne LIDAR
+    posUtmTrans = posUtm-np.transpose(T_rot)
+    
     # add position x y yaw to list
-    groundTruth.append(np.matrix([posUTM[0], posUTM[1], pose.packet.yaw]))
+    groundTruth.append(np.matrix([posUtmTrans[0,0], posUtmTrans[0,1], pose.packet.yaw]))
     
     nr = nr + 1
 
@@ -88,11 +107,4 @@ Save ground truth
 groundTruth = np.vstack(groundTruth)
 np.savetxt(pathSave+'groundTruth.txt',groundTruth,delimiter=',',fmt='%1.3f')
 
-"""
-Extract and save calibration (transformation matrix GPS/IMU -> Velodyne)
-"""
 
-R_Imu2Velod = np.matrix(dataset.calib.T_velo_imu[0:3,0:3])
-T_Imu2Velod = np.matrix(dataset.calib.T_velo_imu[0:3,3]).transpose()
-trans_Imu2Velod = np.hstack((R_Imu2Velod,T_Imu2Velod))
-np.savetxt(pathSave+'calib.txt',trans_Imu2Velod,delimiter=',',fmt='%1.8f')

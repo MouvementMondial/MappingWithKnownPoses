@@ -257,7 +257,7 @@ def slatch2Resample(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,
             """
             Fit scan to map
             """
-            estimatePose = posEstimation.fitScan2Map2(grid,pointcloud,500,1,250,250,
+            estimatePose = posEstimation.fitScan2Map2(grid,pointcloud,250,1,125,125,
                                                      estimatePose,stddPos,stddYaw,
                                                      startPose,offset,resolution)
 

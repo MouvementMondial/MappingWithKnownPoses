@@ -20,11 +20,10 @@ Load data
 KITTI odometry data)
 '''
 path = 'D:/KITTI/odometry/dataset/04_export/'
-path = 'C:/KITTI/2011_09_26/2011_09_26_0117_export/'
-nrOfScans = 270
-nrOfScans = 659
+path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
 startPose = np.loadtxt(path+'firstPose.txt',delimiter=',')
 groundTruth = np.asmatrix(np.loadtxt(path+'groundTruth.txt',delimiter=','))
+nrOfScans = np.shape(groundTruth)[0]-1
 
 """
 Parameter pointcloud Filter
@@ -53,8 +52,8 @@ Create empty GRID [m] and initialize it with 0, this Log-Odd
 value is maximum uncertainty (P = 0.5)
 Use the ground truth trajectory to calculate width and length of the grid
 """
-length = groundTruth[:,0].max()-groundTruth[:,0].min()+200.0
-width = groundTruth[:,1].max()-groundTruth[:,1].min()+400.0
+length = groundTruth[:,0].max()-groundTruth[:,0].min()+400.0
+width = groundTruth[:,1].max()-groundTruth[:,1].min()+600.0
 #length = 1500.0
 #width = 1500.0
 resolution = 0.25
@@ -65,8 +64,8 @@ offset = np.array([-groundTruth[:,0].min()+groundTruth[0,0]-100.0,
                    -groundTruth[:,1].min()+groundTruth[0,1]-100.0,
                     0.0]) # x y yaw
 """
-offset = np.array([math.fabs(groundTruth[0,0]-groundTruth[:,0].min()+100.0),
-                   math.fabs(groundTruth[0,1]-groundTruth[:,1].min()+200.0),
+offset = np.array([math.fabs(groundTruth[0,0]-groundTruth[:,0].min()+200.0),
+                   math.fabs(groundTruth[0,1]-groundTruth[:,1].min()+300.0),
                    0.0])
 
 print('Length: '+str(length))
@@ -127,7 +126,7 @@ for ii in range(0,nrOfScans+1):
         """
         Fit scan to map
         """
-        estimatePose = posEstimation.fitScan2Map(grid,pointcloud,500,10,50,
+        estimatePose = posEstimation.fitScan2Map2(grid,pointcloud,500,1,250,250,
                                                  estimatePose,stddPos,stddYaw,
                                                  startPose,offset,resolution)
 
@@ -178,11 +177,10 @@ plt.scatter(([groundTruth[:,1]]-startPose[1]+offset[1])/resolution,
             c='g',s=20,edgecolors='none', label = 'Trajektorie Ground Truth')
 
 # plot last pointcloud
-trajectory = np.vstack(trajectory)
 plt.scatter(([pointcloud[:,1]]-startPose[1]+offset[1])/resolution,
             ([pointcloud[:,0]]-startPose[0]+offset[0])/resolution,
             c='m',s=5,edgecolors='none', label = 'Punktwolke')            
-            
+        
 # plot legend
 plt.legend(loc='lower left')
 
@@ -200,6 +198,6 @@ distanceGT = np.transpose(np.cumsum(distanceGT))
 # show evaluation
 plt.figure(1)
 plt.plot(distanceGT,errorPos)
-plt.title('Abweichung Position zu Ground Truth')
+plt.title('Abweichung SLAM Trajektorie zu Ground Truth')
 plt.xlabel('Distanz GT [m]')
 plt.ylabel('Abweichung [m]')

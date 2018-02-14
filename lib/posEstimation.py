@@ -130,6 +130,9 @@ def fitScan2Map2(grid,pcl,nrParticle1,nrParticleResample,
                                           np.random.normal(p.y,stddPos/6.0),
                                           np.random.normal(p.yaw,stddYaw/3.0),
                                           0.0))
+    # Weight and sort particles (best first)                       
+    particles = weightAndSortParticles(particles,grid,pcl,startPose,offset,resolution)                                          
+                                          
     """
     Look in the neighborhood of the best particles for better solutions
     """
