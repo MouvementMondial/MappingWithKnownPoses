@@ -28,10 +28,10 @@ nrOfScans = np.shape(groundTruth)[0]-1
 """
 Parameter pointcloud Filter
 """
-# The IMU is mounted at 0.63m height
+# The LIDAR is mounted at 1.73m height
 zCutMin = -0.05
 zCutMax = 0.05
-bbPseudoRadius = 50
+bbPseudoRadius = 150
 
 """
 Parameter mapping from Octomap paper

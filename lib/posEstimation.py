@@ -7,7 +7,13 @@ Created on Sat Feb  3 11:57:46 2018
 
 import numpy as np
 from numba import jit
-from lib.Particle import Particle
+
+class Particle(object):
+    def __init__(self, x, y, yaw, weight):
+        self.x = x
+        self.y = y
+        self.yaw = yaw
+        self.weight = weight
 
 @jit(nopython=True)
 def scan2mapDistance(grid,pcl,offset,resolution):

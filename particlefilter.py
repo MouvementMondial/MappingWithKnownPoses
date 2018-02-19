@@ -37,13 +37,16 @@ def scan2mapDistance(grid,pcl,offset,resolution):
 
 print('Start')
 
-scanNr = 42 # start bei 1
+scanNr = 43 # start bei 1
 
 folder = 'C:/KITTI/Testdaten/partikel_20110926_0005/'
 
 grid = io.readTxt2Grid(folder+'grid_'+str(scanNr)+'.txt')
 pcl = io.readPointcloud2xyz(folder+'pcl_'+str(scanNr)+'.txt')
 pcl = np.delete(pcl,2,1)
+np.save(folder+'pcl_'+str(scanNr),pcl)
+
+
 traj = io.readTraj2xyz(folder+'traj.txt')
 
 offset = np.array([[-50,-50]])
