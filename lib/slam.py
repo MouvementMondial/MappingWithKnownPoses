@@ -191,12 +191,12 @@ def slatch2Resample(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,
     value is maximum uncertainty (P = 0.5)
     Use the ground truth trajectory to calculate width and length of the grid
     """
-    length = groundTruth[:,0].max()-groundTruth[:,0].min()+400.0
-    width = groundTruth[:,1].max()-groundTruth[:,1].min()+400.0
+    length = groundTruth[:,0].max()-groundTruth[:,0].min()+800.0
+    width = groundTruth[:,1].max()-groundTruth[:,1].min()+800.0
     
     grid = np.zeros((int(length/resolution),int(width/resolution)),order='C')
-    offset = np.array([math.fabs(groundTruth[0,0]-groundTruth[:,0].min()+200.0),
-                       math.fabs(groundTruth[0,1]-groundTruth[:,1].min()+200.0),
+    offset = np.array([math.fabs(groundTruth[0,0]-groundTruth[:,0].min()+400.0),
+                       math.fabs(groundTruth[0,1]-groundTruth[:,1].min()+400.0),
                        0.0])
     
     #print('Length: '+str(length))

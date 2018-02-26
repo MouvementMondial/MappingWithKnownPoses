@@ -13,8 +13,8 @@ import time
 '''
 Load data
 '''
-path = 'C:/KITTI/2011_09_26/2011_09_26_drive_0117_export/'
-nrOfScans = 659
+path = 'C:/KITTI/2011_09_26/2011_09_26_drive_0013_export/'
+nrOfScans = 143
 
 """
 Parameter PCL
@@ -29,8 +29,6 @@ l_free = -0.4
 l_min = -2.0
 l_max = 3.5
 
-
-
 """
 Parameter particle Filter
 """
@@ -40,7 +38,7 @@ stddYaw = 0.025
 """
 Parameter grid
 """
-fixResolution = 0.05
+fixResolution = 0.1
 
 for ii in range(0,10):
      

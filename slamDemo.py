@@ -19,8 +19,9 @@ Load data
 (use script 'KittiExport' to create this file formate from KITTI raw data or
 KITTI odometry data)
 '''
-path = 'D:/KITTI/odometry/dataset/04_export/'
+
 path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
+path = 'D:/KITTI/odometry/dataset/04_export/'
 startPose = np.loadtxt(path+'firstPose.txt',delimiter=',')
 groundTruth = np.asmatrix(np.loadtxt(path+'groundTruth.txt',delimiter=','))
 nrOfScans = np.shape(groundTruth)[0]-1
@@ -31,7 +32,7 @@ Parameter pointcloud Filter
 # The LIDAR is mounted at 1.73m height
 zCutMin = -0.05
 zCutMax = 0.05
-bbPseudoRadius = 150
+bbPseudoRadius = 30
 
 """
 Parameter mapping from Octomap paper
@@ -44,8 +45,8 @@ l_max = 3.5
 """
 Parameter particle Filter
 """
-stddPos = 0.1
-stddYaw = 0.20
+stddPos = 0.2
+stddYaw = 0.025
 
 """
 Create empty GRID [m] and initialize it with 0, this Log-Odd 
@@ -83,6 +84,8 @@ estimatePose = np.matrix([startPose[0],startPose[1],startPose[2]])
 Process all Scans
 """
 #try:
+pointCount = 0
+nrPointCount = 0
 for ii in range(0,nrOfScans+1):
     t0 = time.time() # measure time
 
@@ -96,6 +99,7 @@ for ii in range(0,nrOfScans+1):
     pointcloud = filterPCL.filterZ(pointcloud,zCutMin,zCutMax)
     # project points to xy-plane (delete z-values)
     pointcloud = np.delete(pointcloud,2,1)
+    #pointcloud = np.delete(pointcloud,list(range(0,pointcloud.shape[0],2)),0)
 
     """
     First measurement: map with initial position
@@ -149,6 +153,10 @@ for ii in range(0,nrOfScans+1):
     trajectory.append(estimatePose)
     print('Scan '+str(ii)+' processed: '+str(time.time()-t0)+'s')
     
+    pointCount = pointCount + pointcloud.shape[0]
+    nrPointCount = ii    
+    
+print(pointCount/nrPointCount)
 """
 except:
     print('There was an exception, show results:')
@@ -163,7 +171,7 @@ Plot
 """
 # show grid
 plt.figure(0)
-plt.imshow(grid[:,:], interpolation ='none', cmap = 'binary')
+plt.imshow(grid[:,:], interpolation ='none', cmap = 'binary',extent=[0,length,0,width])
 # plot trajectory
 trajectory = np.vstack(trajectory)
 plt.scatter(([trajectory[:,1]]-startPose[1]+offset[1])/resolution,
@@ -201,3 +209,4 @@ plt.plot(distanceGT,errorPos)
 plt.title('Abweichung SLAM Trajektorie zu Ground Truth')
 plt.xlabel('Distanz GT [m]')
 plt.ylabel('Abweichung [m]')
+
