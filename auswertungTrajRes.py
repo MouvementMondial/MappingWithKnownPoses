@@ -13,8 +13,9 @@ def eigsorted(cov):
 
 
 path = 'C:/KITTI/2011_09_26/2011_09_26_drive_0013_export/'
-path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
+
 path = 'D:/KITTI/odometry/dataset/07_export/'
+path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
 
 nr = 25
 
@@ -32,11 +33,11 @@ filenamesTrajs = []
 #filenamesTrajs.append('0.05')
 filenamesTrajs.append('0.1')
 filenamesTrajs.append('0.15')
-filenamesTrajs.append('0.2')
-filenamesTrajs.append('0.25')
-filenamesTrajs.append('0.3')
-filenamesTrajs.append('0.35')
-filenamesTrajs.append('0.4')
+#filenamesTrajs.append('0.2')
+#filenamesTrajs.append('0.25')
+#filenamesTrajs.append('0.3')
+#filenamesTrajs.append('0.35')
+#filenamesTrajs.append('0.4')
 #filenamesTrajs.append('0.45')
 #filenamesTrajs.append('0.5')
 for res in filenamesTrajs:

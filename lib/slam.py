@@ -227,7 +227,13 @@ def slatch2Resample(path,nrOfScans,bbPseudoRadius,l_occupied,l_free,l_min,l_max,
         pointcloud = filterPCL.filterZ(pointcloud,zCutMin,zCutMax)
         # project points to xy-plane (delete z-values)
         pointcloud = np.delete(pointcloud,2,1)
-    
+        
+        pointcloud_int = (pointcloud/resolution).astype(int)
+        x = np.random.rand(pointcloud_int.shape[1])
+        y = pointcloud_int.dot(x)
+        unique, index = np.unique(y, return_index=True)
+        pointcloud = pointcloud[index]
+
         """
         First measurement: map with initial position
 

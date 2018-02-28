@@ -12,7 +12,7 @@ from lib import filterPCL
 """
 Create pointcloud
 """
-nrPoints = 200000
+nrPoints = 100000
 radiusMean = 30
 
 angles = np.linspace(0,2*np.pi,nrPoints) + np.random.rand(nrPoints)
@@ -75,6 +75,7 @@ pointcloud = filterPCL.filterBB(pointcloud,bbPseudoRadius,0.0,0.0)
 pointcloud = filterPCL.filterZ(pointcloud,zCutMin,zCutMax)
 pointcloud = np.delete(pointcloud,2,1)
 
+
 # Transform pointcloud to best estimate
 # rotation
 R = np.matrix([[np.cos(estimatePose[0,2]),-np.sin(estimatePose[0,2])],
@@ -134,6 +135,16 @@ for ii in range(1,nrOfRuns):
     pointcloud = filterPCL.filterBB(pointcloud,bbPseudoRadius,0.0,0.0)
     pointcloud = filterPCL.filterZ(pointcloud,zCutMin,zCutMax)
     pointcloud = np.delete(pointcloud,2,1)
+    
+    
+    #print('Vorher: '+str(pointcloud.shape[0]))
+    pointcloud_int = (pointcloud/resolution).astype(int)
+    x = np.random.rand(pointcloud_int.shape[1])
+    y = pointcloud_int.dot(x)
+    unique, index = np.unique(y, return_index=True)
+    pointcloud = pointcloud[index]    
+    #print('Nachher: '+str(pointcloud.shape[0]))
+    
     timeFILTER = timeFILTER + time.time()-t1
     
     t1 = time.time()
@@ -179,7 +190,7 @@ timePARTICLE_WEIGHT_TRANSFORM = timePARTICLE_WEIGHT_TRANSFORM[-1] / nrOfRuns
 timePARTICLE_WEIGHT_WEIGHT = timePARTICLE_WEIGHT_WEIGHT[-1] / nrOfRuns
 timePARTICLE_WEIGHT_SORT = timePARTICLE_WEIGHT_SORT[-1] / nrOfRuns
 
-print('Filter: '+str(timeFILTER/timeALL*100)+'%')
+print('Filter: '+str(timeFILTER)+'s')
 print('Load: '+str(timeLOAD/timeALL*100)+'%')
 print('Mapping: '+str(timeMAPPING/timeALL*100)+'%')
 print('Davon Runden: '+str(timeMAPPING_ROUND/timeMAPPING_ALL*100)+'%')

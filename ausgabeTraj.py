@@ -13,8 +13,8 @@ import time
 '''
 Load data
 '''
-path = 'C:/KITTI/2011_09_26/2011_09_26_drive_0013_export/'
-nrOfScans = 143
+path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
+nrOfScans = 1105
 
 """
 Parameter PCL
@@ -38,9 +38,9 @@ stddYaw = 0.025
 """
 Parameter grid
 """
-fixResolution = 0.1
+fixResolution = 0.25
 
-for ii in range(0,10):
+for ii in range(0,1):
      
     
     trajs = []
@@ -58,6 +58,6 @@ for ii in range(0,10):
               ' time = ' + str(time.time()-t0) + 's')
               
     trajs = np.hstack(trajs)
-    np.savetxt(path+'trajs_'+str(fixResolution)+'.txt',trajs,delimiter=',')
+    np.savetxt(path+'trajs_'+str(fixResolution)+'_filter.txt',trajs,delimiter=',')
     
     fixResolution = fixResolution + 0.05 

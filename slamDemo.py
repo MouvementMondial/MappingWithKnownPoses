@@ -20,8 +20,9 @@ Load data
 KITTI odometry data)
 '''
 
-path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
+
 path = 'D:/KITTI/odometry/dataset/04_export/'
+path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
 startPose = np.loadtxt(path+'firstPose.txt',delimiter=',')
 groundTruth = np.asmatrix(np.loadtxt(path+'groundTruth.txt',delimiter=','))
 nrOfScans = np.shape(groundTruth)[0]-1
@@ -32,7 +33,7 @@ Parameter pointcloud Filter
 # The LIDAR is mounted at 1.73m height
 zCutMin = -0.05
 zCutMax = 0.05
-bbPseudoRadius = 30
+bbPseudoRadius = 120
 
 """
 Parameter mapping from Octomap paper
@@ -45,8 +46,8 @@ l_max = 3.5
 """
 Parameter particle Filter
 """
-stddPos = 0.2
-stddYaw = 0.025
+stddPos = 0.02
+stddYaw = 0.01
 
 """
 Create empty GRID [m] and initialize it with 0, this Log-Odd 
@@ -80,6 +81,12 @@ trajectory = []
 # save the estimated pose here (mouvement model with deltaPose)
 estimatePose = np.matrix([startPose[0],startPose[1],startPose[2]])
 
+pcl_nr = 0
+pcl_nr_filter = 0
+
+timePerScan0 = 0
+timePerScan = 0
+
 """
 Process all Scans
 """
@@ -88,18 +95,29 @@ pointCount = 0
 nrPointCount = 0
 for ii in range(0,nrOfScans+1):
     t0 = time.time() # measure time
+    
+    if ii == 2:
+        timePerScan0 = time.time()
 
     """
     Load and filter pointcloud
     """
     pointcloud = np.load(path+'pointcloudNP_'+str(ii)+'.npy')    
-    # limit range of velodyne laserscaner
-    pointcloud = filterPCL.filterBB(pointcloud,bbPseudoRadius,0.0,0.0)
+    
+   
     # get points where z-value is in a certain range, in vehicle plane!
     pointcloud = filterPCL.filterZ(pointcloud,zCutMin,zCutMax)
     # project points to xy-plane (delete z-values)
     pointcloud = np.delete(pointcloud,2,1)
     #pointcloud = np.delete(pointcloud,list(range(0,pointcloud.shape[0],2)),0)
+
+    pcl_nr = pcl_nr + pointcloud.shape[0]
+    pointcloud_int = (pointcloud/resolution).astype(int)
+    x = np.random.rand(pointcloud_int.shape[1])
+    y = pointcloud_int.dot(x)
+    unique, index = np.unique(y, return_index=True)
+    pointcloud = pointcloud[index]    
+    pcl_nr_filter = pcl_nr_filter + pointcloud.shape[0]
 
     """
     First measurement: map with initial position
@@ -120,7 +138,7 @@ for ii in range(0,nrOfScans+1):
         """
         if ii == 1: # if it is the second measurement: Use particlefilter to find estimate
             estimatePose = posEstimation.fitScan2Map(grid,pointcloud,25000,10,2500,
-                                                     estimatePose,stddPos*10,stddYaw*10,
+                                                     estimatePose,stddPos*20,stddYaw*20,
                                                      startPose,offset,resolution)              
                     
         else: # it is not the first or second measurement, use movement model
@@ -130,7 +148,7 @@ for ii in range(0,nrOfScans+1):
         """
         Fit scan to map
         """
-        estimatePose = posEstimation.fitScan2Map2(grid,pointcloud,500,1,250,250,
+        estimatePose = posEstimation.fitScan2Map2(grid,pointcloud,200,1,125,50,
                                                  estimatePose,stddPos,stddYaw,
                                                  startPose,offset,resolution)
 
@@ -155,6 +173,10 @@ for ii in range(0,nrOfScans+1):
     
     pointCount = pointCount + pointcloud.shape[0]
     nrPointCount = ii    
+
+timePerScan = (time.time()-timePerScan0)/(nrPointCount-2)    
+pcl_nr = pcl_nr/nrPointCount
+pcl_nr_filter = pcl_nr_filter/nrPointCount
     
 print(pointCount/nrPointCount)
 """
@@ -171,7 +193,7 @@ Plot
 """
 # show grid
 plt.figure(0)
-plt.imshow(grid[:,:], interpolation ='none', cmap = 'binary',extent=[0,length,0,width])
+plt.imshow(grid[:,:], interpolation ='none', cmap = 'binary')
 # plot trajectory
 trajectory = np.vstack(trajectory)
 plt.scatter(([trajectory[:,1]]-startPose[1]+offset[1])/resolution,

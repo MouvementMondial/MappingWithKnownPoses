@@ -17,10 +17,9 @@ def eigsorted(cov):
     order = vals.argsort()[::-1]
     return vals[order], vecs[:,order]
 
-path = 'D:/KITTI/odometry/dataset/04_export/'
-path = 'C:/KITTI/2011_09_30/2011_09_30_0027_export/'
+path = 'D:/KITTI/odometry/dataset/07_export/'
 
-nr = 25
+nr = 10
 
 groundTruth = np.asmatrix(np.loadtxt(path+'groundTruth.txt',delimiter=','))
 ax = plt.subplot(111) 
@@ -29,7 +28,35 @@ plt.scatter([groundTruth[:,1]],[groundTruth[:,0]],
             c='g',s=20,edgecolors='none', label = 'Trajektorie Ground Truth')
 
 
-trajs = np.asmatrix(np.loadtxt(path+'trajs_0.25.txt',delimiter=','))
+
+
+trajs = np.asmatrix(np.loadtxt(path+'07_trajs_slatchOHNE_01.txt',delimiter=','))
+# mean trajs
+meanX = np.mean(trajs[:,::2],axis=1)
+meanY = np.mean(trajs[:,1::2],axis=1)
+covSum2 = []
+for ii in range(0,trajs.shape[0],10):
+    cov = np.cov(trajs[ii,1::2].tolist(),trajs[ii,::2].tolist())
+    covSum2.append(np.trace(cov))
+    nstd = 2
+    vals, vecs = eigsorted(cov)
+    theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+    w, h = 2 * nstd * np.sqrt(vals)
+    ell = Ellipse(xy=(np.mean(trajs[ii,1::2]),np.mean(trajs[ii,::2])),
+              width=w, height=h,
+              angle=theta, color='blue')
+    ell.set_facecolor('none')
+    ax.add_artist(ell)
+for ii in range(0,nr*2-1,2):
+    plt.scatter([trajs[::10,ii+1]],[trajs[::10,ii]],
+                c='r',s=3,edgecolors='none')
+plt.scatter([meanY],[meanX],c='b',s=20,edgecolors='none',label = 'Trajektorien 1.000 Partikel')
+
+trajectory = np.hstack((meanX,meanY))
+errorPos2 = np.sqrt( np.multiply(trajectory[:,0]-groundTruth[:,0],trajectory[:,0]-groundTruth[:,0])
+                     +np.multiply(trajectory[:,1]-groundTruth[:,1],trajectory[:,1]-groundTruth[:,1]))
+
+trajs = np.asmatrix(np.loadtxt(path+'07_trajs_slatchOHNE_01_10000.txt',delimiter=','))
 # mean trajs
 meanX = np.mean(trajs[:,::2],axis=1)
 meanY = np.mean(trajs[:,1::2],axis=1)
@@ -43,23 +70,23 @@ for ii in range(0,trajs.shape[0],10):
     w, h = 2 * nstd * np.sqrt(vals)
     ell = Ellipse(xy=(np.mean(trajs[ii,1::2]),np.mean(trajs[ii,::2])),
               width=w, height=h,
-              angle=theta, color='blue')
+              angle=theta, color='red')
     ell.set_facecolor('none')
     ax.add_artist(ell)
 for ii in range(0,nr*2-1,2):
     if ii == 0:
         plt.scatter([trajs[::10,ii+1]],[trajs[::10,ii]],
-                    c='b',s=3,edgecolors='none',label = 'Trajektorien ohne Filterung')
+                    c='r',s=3,edgecolors='none')
     else:
         plt.scatter([trajs[::10,ii+1]],[trajs[::10,ii]],
-                    c='b',s=3,edgecolors='none')
-plt.scatter([meanY],[meanX],c='b',s=20,edgecolors='none',label = 'Trajektorien SLAM Mittelwert')
+                    c='r',s=3,edgecolors='none')
+plt.scatter([meanY],[meanX],c='r',s=20,edgecolors='none',label = 'Trajektorien 10.000 Partikel')
 
 trajectory = np.hstack((meanX,meanY))
 errorPos1 = np.sqrt( np.multiply(trajectory[:,0]-groundTruth[:,0],trajectory[:,0]-groundTruth[:,0])
                      +np.multiply(trajectory[:,1]-groundTruth[:,1],trajectory[:,1]-groundTruth[:,1]))
 
-trajs = np.asmatrix(np.loadtxt(path+'trajs_0.25_filter.txt',delimiter=','))
+trajs = np.asmatrix(np.loadtxt(path+'07_trajs_slatch_01_500_250_250.txt',delimiter=','))
 # mean trajs
 meanX = np.mean(trajs[:,::2],axis=1)
 meanY = np.mean(trajs[:,1::2],axis=1)
@@ -79,13 +106,18 @@ for ii in range(0,trajs.shape[0],10):
 for ii in range(0,nr*2-1,2):
     plt.scatter([trajs[::10,ii+1]],[trajs[::10,ii]],
                 c='m',s=3,edgecolors='none')
-plt.scatter([meanY],[meanX],c='m',s=20,edgecolors='none',label = 'Trajektorien mit Filterung')
+plt.scatter([meanY],[meanX],c='m',s=20,edgecolors='none',label = 'Trajektorien 500 + 250 + 250 Partikel')
 
 trajectory = np.hstack((meanX,meanY))
 errorPos2 = np.sqrt( np.multiply(trajectory[:,0]-groundTruth[:,0],trajectory[:,0]-groundTruth[:,0])
                      +np.multiply(trajectory[:,1]-groundTruth[:,1],trajectory[:,1]-groundTruth[:,1]))
 
 plt.legend()
+
+
+
+
+
 
 
 # traveled distance ground truth
